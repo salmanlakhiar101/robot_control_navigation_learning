@@ -5,20 +5,20 @@
     <ros2_control name = "RobotSystem" type = "system">
 
         <!-- This is for ROS2 Humble -->
-        <xacro:if value="$(args is_ignition)">
+        <xacro:if value="$(arg is_ignition)">
             <hardware>
                 <plugin>ign_ros2_control/IgnitionSystem</plugin>
             </hardware>
         </xacro:if>
 
         <!-- This is for newer version of ROS2 -->
-        <xacro:unless value="$(args is_ignition)">
-            <hadrware>
+        <xacro:unless value="$(arg is_ignition)">
+            <hardware>
                 <plugin>gz_ros2_control/GazeboSimSystem</plugin>
-            </hadrware>
+            </hardware>
         </xacro:unless>
 
-        <joint name="right_wheel_link">
+        <joint name="base_right_joint">
             <!-- Data or command to the joint -->
             <command_interface name = "velocity">
                 <param name = "min">-1</param>
@@ -29,7 +29,7 @@
             <state_interface name = "velocity"/> 
         </joint>
 
-        <joint name="left_wheel_link">
+        <joint name="base_left_joint">
             <command_interface name = "velocity">
                 <param name = "min">-1</param>
                 <param name = "max">1</param>

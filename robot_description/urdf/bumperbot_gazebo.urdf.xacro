@@ -2,7 +2,7 @@
 
 <robot xmlns:xacro="https://www.ros.org/wiki/xacro">
 
-    <gazebo reference = "right_wheel_link">
+    <gazebo reference = "base_right_joint">
         <mu1>100000000000000.0</mu1>
         <mu2>100000000000000.0</mu2>
         <kp>1000000000000.0</kp>
@@ -12,7 +12,7 @@
         <fdir1>1 0 0</fdir1>
     </gazebo>
 
-    <gazebo reference = "left_wheel_link">
+    <gazebo reference = "base_left_joint">
         <mu1>100000000000000.0</mu1>
         <mu2>100000000000000.0</mu2>
         <kp>1000000000000.0</kp>
@@ -22,7 +22,7 @@
         <fdir1>1 0 0</fdir1>
     </gazebo>
 
-    <gazebo reference = "caster_front_link">
+    <gazebo reference = "base_front_caster_joint">
         <mu1>0.1</mu1>
         <mu2>0.1</mu2>
         <kp>1000000.0</kp>
@@ -31,7 +31,7 @@
         <maxVel>0.1</maxVel>
     </gazebo>
 
-    <gazebo reference = "caster_rear_link">
+    <gazebo reference = "base_rear_caster_joint">
         <mu1>0.1</mu1>
         <mu2>0.1</mu2>
         <kp>1000000.0</kp>
@@ -41,17 +41,17 @@
     </gazebo>
 
     <gazebo>
-        <!-- This plugin is for ROS2 Humble -->
+        <!-- This plugin is for ROS2 Humble or older -->
         <xacro:if value = "$(arg is_ignition)">
             <plugin filename = "ign_ros2_control-system" name = "ign_ros2_control::IgnitionROS2ControlPlugin">
-                <parameters></parameters>
+                <parameters>$(find robot_bringup)/config/bumperbot_controller.yaml</parameters>
             </plugin>
         </xacro:if>
 
         <!-- This plugin is for the newer version of ROS2 -->
         <xacro:unless value = "$(arg is_ignition)">
             <plugin filename = "gz_ros2_control-system" name = "gz_ros2_control::GazeboSimROS2ControlPlugin">
-                <parameters></parameters>
+                <parameters>$(find robot_bringup)/config/bumperbot_controller.yaml</parameters>
             </plugin>
         </xacro:unless>
     </gazebo>
