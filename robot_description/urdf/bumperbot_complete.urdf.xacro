@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<robot name= "bumperbot" xmlns:xacro="https://www.ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find robot_description)/urdf/common_materials.xacro"/>
+
+    <xacro:include filename="$(find robot_description)/urdf/bumperbot_ros2_control.xacro"/>
+    <xacro:include filename="$(find robot_description)/urdf/bumperbot_gazebo.urdf.xacro"/>
+    <xacro:include filename="$(find robot_description)/urdf/bumperbot_base.urdf.xacro"/>
+
+
+</robot>

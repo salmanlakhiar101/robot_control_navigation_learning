@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="https://www.ros.org/wiki/xacro">
+
+    <ros2_control name = "RobotSystem" type = "system">
+
+        <!-- This is for ROS2 Humble -->
+        <xacro:if value="$(args is_ignition)">
+            <hardware>
+                <plugin>ign_ros2_control/IgnitionSystem</plugin>
+            </hardware>
+        </xacro:if>
+
+        <!-- This is for newer version of ROS2 -->
+        <xacro:unless value="$(args is_ignition)">
+            <hadrware>
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            </hadrware>
+        </xacro:unless>
+
+        <joint name="right_wheel_link">
+            <!-- Data or command to the joint -->
+            <command_interface name = "velocity">
+                <param name = "min">-1</param>
+                <param name = "max">1</param>
+            </command_interface>
+            <!-- data read from the joint -->
+            <state_interface name = "position"/>
+            <state_interface name = "velocity"/> 
+        </joint>
+
+        <joint name="left_wheel_link">
+            <command_interface name = "velocity">
+                <param name = "min">-1</param>
+                <param name = "max">1</param>
+            </command_interface>
+
+            <state_interface name = "position"/>
+            <state_interface name = "velocity"/> 
+        </joint>
+
+
+    </ros2_control>
+
+</robot>
