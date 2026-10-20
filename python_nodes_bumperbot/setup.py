@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'simple_controller = python_nodes_bumperbot.simple_controller:main'
         ],
     },
 )
