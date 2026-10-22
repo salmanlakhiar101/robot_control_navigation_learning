@@ -62,7 +62,8 @@ def generate_launch_description():
                     ]
                 ),
             Node(
-                package = "python_nodes_bumperbot",
+                #package = "python_nodes_bumperbot",
+                package = "cpp_nodes_bumperbot",
                 executable = "simple_controller",
                 parameters = [{"wheel_radius": wheel_radius, "wheel_separation": wheel_separation}]
                 )
