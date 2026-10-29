@@ -20,13 +20,15 @@
 
     <link name = "base_link">
 
-        <inertial>
+        <!-- <inertial>
         <origin xyz="0 0 0.04" rpy="0.0 0.25 0.3" />
         <mass value="8.2573504e-01"/>
         <inertia ixx="2.2124416e-02" ixy="-1.2294101e-04" ixz="3.4938785e-04"
                  iyy="2.1193702e-02" iyz="-5.0120904e-05"
                  izz="2.0064271e-02" />
-        </inertial>
+        </inertial> -->
+
+        <xacro:cylinder_inertia m="2.0" r="0.075" l="0.105" o_xyz="0 0 0.028" o_rpy="0 0 0" />
 
         <visual>
             <geometry>
@@ -36,9 +38,10 @@
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robot_description/meshes/bumperbot/base_link.STL"/>
+                <!-- <mesh filename="package://robot_description/meshes/bumperbot/base_link.STL"/> -->
+                <cylinder radius="0.075" length="0.105"/> 
             </geometry>
-            <origin xyz = "0 0 0" rpy = "0 0 0"/>
+            <origin xyz = "0 0 0.028" rpy = "0 0 0"/>
         </collision>
     </link>
 

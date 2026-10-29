@@ -1,4 +1,5 @@
 <launch>
+
     <let name="urdf_path" value="$(find-pkg-share robot_description)/urdf/bumperbot_complete.urdf.xacro"/>
 
     <let name="rviz_config_path" value="$(find-pkg-share robot_bringup)/rviz/rviz_config.rviz"/>

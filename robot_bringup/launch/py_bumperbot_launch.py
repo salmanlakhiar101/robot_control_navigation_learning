@@ -10,6 +10,7 @@ import os
 
 def generate_launch_description():
 
+
     # This will get the path to the URDF file as a parameter, it also has a default value for our robot file. 
     model_argument = DeclareLaunchArgument(
         name = "model",
@@ -18,7 +19,14 @@ def generate_launch_description():
     )
 
     #This will convert the model from Xacro to URDF
-    robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]), value_type = str)
+    robot_description = ParameterValue(
+            Command([
+                "xacro ",
+                LaunchConfiguration("model"),
+                " is_ignition:=false"
+            ]),
+        value_type=str
+    )
 
 
     #Run the robot_state_publisher node with our URDF file
