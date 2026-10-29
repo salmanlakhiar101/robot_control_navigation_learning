@@ -4,8 +4,6 @@
 using std::placeholders::_1;
 
 
-
-
 SimpleController::SimpleController(const std::string &name) : Node(name) {
 
     declare_parameter("wheel_radius", 0.033);
