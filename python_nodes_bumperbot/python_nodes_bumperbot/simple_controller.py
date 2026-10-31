@@ -6,10 +6,11 @@ import numpy as np
 from rclpy.node import Node
 from rclpy.time import Time
 from rclpy.constants import S_TO_NS
+from tf2_ros import TransformBroadcaster
 from tf_transformations import quaternion_from_euler
 
 from std_msgs.msg import Float64MultiArray
-from geometry_msgs.msg import TwistStamped
+from geometry_msgs.msg import TwistStamped, TransformStamped
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
  
@@ -50,7 +51,8 @@ class SimpleController(Node):
         # For Velocity Calculation from Wheel
         self.left_wheel_prev_pos_ = 0.0
         self.right_wheel_prev_pos_ = 0.0
-        self.prev_time_ = self.get_clock().now()
+        #self.prev_time_ = self.get_clock().now()
+        self.prev_time_ = None
 
         #Creating a joint subscriber that will subscribe to joint_state topic (for simulated robot, otherwise it will get data directly form wheel encoders)
         #It will get the position of wheels
@@ -72,6 +74,11 @@ class SimpleController(Node):
 
         self.odom_pub_ = self.create_publisher(Odometry, "bumperbot_controller/odom", 10)
 
+        #To publish tf from Odom to base_footprint
+        self.br_ = TransformBroadcaster(self)
+        self.transformStamped_ = TransformStamped()
+        self.transformStamped_.header.frame_id = "odom"
+        self.transformStamped_.child_frame_id = "base_footprint"
 
 
 
@@ -102,6 +109,14 @@ class SimpleController(Node):
 
         left_index = msg.name.index("base_left_joint")
         right_index = msg.name.index("base_right_joint")
+
+        current_time = Time.from_msg(msg.header.stamp)
+
+        if self.prev_time_ is None:
+            self.left_wheel_prev_pos_ = msg.position[left_index]
+            self.right_wheel_prev_pos_ = msg.position[right_index]
+            self.prev_time_ = current_time
+            return
 
         dp_left = msg.position[left_index] - self.left_wheel_prev_pos_
         dp_right = msg.position[right_index] - self.right_wheel_prev_pos_
@@ -136,7 +151,7 @@ class SimpleController(Node):
         self.odom_msg_.pose.pose.orientation.y = q[1]
         self.odom_msg_.pose.pose.orientation.z = q[2]
         self.odom_msg_.pose.pose.orientation.w = q[3]
-        self.odom_msg_.header.stamp = self.get_clock().now().to_msg()
+        self.odom_msg_.header.stamp = msg.header.stamp
 
         self.odom_msg_.pose.pose.position.x = self.x_
         self.odom_msg_.pose.pose.position.y = self.y_
@@ -145,6 +160,18 @@ class SimpleController(Node):
         self.odom_msg_.twist.twist.angular.z = angular
 
         self.odom_pub_.publish(self.odom_msg_)
+
+        #To publish tf from Odom to base_footprint
+        self.transformStamped_.transform.translation.x = self.x_
+        self.transformStamped_.transform.translation.y = self.y_
+
+        self.transformStamped_.transform.rotation.x = q[0]
+        self.transformStamped_.transform.rotation.y = q[1]
+        self.transformStamped_.transform.rotation.z = q[2]
+        self.transformStamped_.transform.rotation.w = q[3]
+        self.transformStamped_.header.stamp = msg.header.stamp
+
+        self.br_.sendTransform(self.transformStamped_)
 
         #self.get_logger().info("Linear Velocity: %f, Angular Velocity: %f" %(linear, angular))
         #self.get_logger().info("X: %f, Y: %f, Theta: %f " %(self.x_, self.y_, self.theta_))
