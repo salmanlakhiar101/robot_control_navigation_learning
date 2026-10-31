@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 import rclpy
+import math
 import numpy as np
 
 from rclpy.node import Node
 from rclpy.time import Time
 from rclpy.constants import S_TO_NS
+from tf_transformations import quaternion_from_euler
 
 from std_msgs.msg import Float64MultiArray
 from geometry_msgs.msg import TwistStamped
 from sensor_msgs.msg import JointState
+from nav_msgs.msg import Odometry
  
  
 class SimpleController(Node): 
@@ -42,7 +45,7 @@ class SimpleController(Node):
         #Diplaying the conversion matrix
         self.get_logger().info("The conversion matrix is: %s" %self.speed_conversion_)
 
-        #---------- Forward Kinematics ----------
+        #---------- Forward Kinematics & Odometery ----------
 
         # For Velocity Calculation from Wheel
         self.left_wheel_prev_pos_ = 0.0
@@ -52,6 +55,27 @@ class SimpleController(Node):
         #Creating a joint subscriber that will subscribe to joint_state topic (for simulated robot, otherwise it will get data directly form wheel encoders)
         #It will get the position of wheels
         self.joint_sub_ = self.create_subscription(JointState, "joint_states", self.jointCallBack, 10)
+
+        #Odometery
+        self.x_ = 0.0
+        self.y_ = 0.0
+        self.theta_ = 0.0
+
+        self.odom_msg_ = Odometry()
+        self.odom_msg_.header.frame_id = "odom"
+        self.odom_msg_.child_frame_id = "base_footprint"
+
+        self.odom_msg_.pose.pose.orientation.x = 0.0
+        self.odom_msg_.pose.pose.orientation.y = 0.0
+        self.odom_msg_.pose.pose.orientation.z = 0.0
+        self.odom_msg_.pose.pose.orientation.w = 1.0
+
+        self.odom_pub_ = self.create_publisher(Odometry, "bumperbot_controller/odom", 10)
+
+
+
+
+
 
     #---------- Inverse Kinematics ----------
 
@@ -69,7 +93,7 @@ class SimpleController(Node):
 
         self.wheel_cmd_pub_.publish(wheel_speed_msg)
 
-    #---------- Forward Kinematics ----------
+    #---------- Forward Kinematics & Odometery ----------
 
     #Defining callback function for the Joint State Subscriber
     def jointCallBack(self, msg: JointState):
@@ -94,7 +118,36 @@ class SimpleController(Node):
         linear = ((self.wheel_radius_ * fi_left) + (self.wheel_radius_ * fi_right)) / 2
         angular = ((self.wheel_radius_ * fi_right) - (self.wheel_radius_ * fi_left)) / self.wheel_separation_ 
 
-        self.get_logger().info("Linear Velocity: %f, Angular Velocity: %f" %(linear, angular))
+        #Odometery
+        d_s = ((self.wheel_radius_ * dp_right) + (self.wheel_radius_ * dp_left)) / 2.0
+        d_theta = ((self.wheel_radius_ * dp_right) - (self.wheel_radius_ * dp_left)) / self.wheel_separation_
+
+        self.theta_ += d_theta
+        self.x_ += d_s * math.cos(self.theta_)
+        self.y_ += d_s * math.sin(self.theta_) 
+
+        #To publish the Odom to a topic "bumperbot_controller/odom" 
+        
+        #converting from euler to quaternion
+        #The Function needs R P Y, for our Robot R = 0, P = 0, Y = Robot Orientation = theta
+        q = quaternion_from_euler(0, 0, self.theta_)
+        
+        self.odom_msg_.pose.pose.orientation.x = q[0]
+        self.odom_msg_.pose.pose.orientation.y = q[1]
+        self.odom_msg_.pose.pose.orientation.z = q[2]
+        self.odom_msg_.pose.pose.orientation.w = q[3]
+        self.odom_msg_.header.stamp = self.get_clock().now().to_msg()
+
+        self.odom_msg_.pose.pose.position.x = self.x_
+        self.odom_msg_.pose.pose.position.y = self.y_
+
+        self.odom_msg_.twist.twist.linear.x = linear
+        self.odom_msg_.twist.twist.angular.z = angular
+
+        self.odom_pub_.publish(self.odom_msg_)
+
+        #self.get_logger().info("Linear Velocity: %f, Angular Velocity: %f" %(linear, angular))
+        #self.get_logger().info("X: %f, Y: %f, Theta: %f " %(self.x_, self.y_, self.theta_))
 
 
 
