@@ -82,8 +82,6 @@ class SimpleController(Node):
 
 
 
-
-
     #---------- Inverse Kinematics ----------
 
     #Defining the callback function for vel_sub
