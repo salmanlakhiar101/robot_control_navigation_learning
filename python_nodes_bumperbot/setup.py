@@ -25,7 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             'simple_controller = python_nodes_bumperbot.simple_controller:main',
-            'noisy_controller = python_nodes_bumperbot.noisy_controller:main'
+            'noisy_controller = python_nodes_bumperbot.noisy_controller:main',
+            'kalmen_filter = python_nodes_bumperbot.kalmen_filter:main'
         ],
     },
 )
