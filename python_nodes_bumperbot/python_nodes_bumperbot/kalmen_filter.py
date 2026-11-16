@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
-import math
-import numpy as np
 
 from rclpy.node import Node
-from rclpy.time import Time
-
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 
